@@ -16,3 +16,7 @@ This is a simple calculator built with HTML, CSS, and JavaScript. It allows user
 **Dark Mode:**
 
 <img src="https://user-images.githubusercontent.com/69359897/225812678-91b1505d-38f7-4995-8e3a-59e42bc3bf18.png" width="500">
+
+## License
+
+This project is licensed under the MIT License. Feel free to use, modify, and distribute the code as you see fit. See the [LICENSE](LICENSE) file for more details.
