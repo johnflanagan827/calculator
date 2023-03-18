@@ -15,7 +15,6 @@ const slider = document.getElementById("switch");
 let leftOperand = 0;
 let rightOperand = 0;
 let currOperation;
-let chained = false;
 let clearDisplay = false;
 let enterStatus = false;
 let darkMode = false;
@@ -68,18 +67,7 @@ function formatResults(result) {
 
 // performs operation of specified operator
 function performOperation(operator) {
-    if (chained) {
-        rightOperand = output.textContent;
-        output.textContent = calculate(
-            parseFloat(leftOperand),
-            parseFloat(output.textContent),
-            currOperation
-        );
-        leftOperand = output.textContent;
-    } else {
-        leftOperand = output.textContent;
-    }
-    chained = true;
+    leftOperand = output.textContent;
     enterStatus = false;
     clearDisplay = true;
     currOperation = operator;
@@ -97,7 +85,6 @@ function performEqual() {
     );
     leftOperand = output.textContent;
     enterStatus = true;
-    chained = false;
 }
 
 // changes calculator theme
@@ -135,16 +122,17 @@ function changeTheme(
 // EVENT LISTENERS
 numbers.forEach((e) => {
     e.addEventListener("click", () => {
-        if (
-            output.textContent === "0" ||
-            output.textContent === "Error" ||
-            clearDisplay
+        if (enterStatus || output.textContent.length >= 9) {
+            return;
+        } else if (
+            (output.textContent === "0" ||
+                output.textContent === "Error" ||
+                clearDisplay) && e.value !== '.'
         ) {
             enterStatus = false;
             output.textContent = e.value;
             clearDisplay = false;
-        } else if (output.textContent.length >= 9) {
-            return;
+
         } else {
             if (!(e.value === "." && output.textContent.includes("."))) {
                 output.textContent = output.textContent + e.value;
@@ -160,7 +148,6 @@ numbers.forEach((e) => {
 
 clear.addEventListener("click", () => {
     enterStatus = false;
-    chained = false;
     output.textContent = "0";
     leftOperand = 0;
 });
@@ -211,7 +198,9 @@ window.addEventListener("keydown", (e) => {
             output.textContent = calculate(parseFloat(output.textContent), 100, "/");
         }
     } else if (e.key === "Backspace") {
-        if (output.textContent.length === 1) {
+        if (enterStatus) {
+            return;
+        } else if (output.textContent.length === 1) {
             output.textContent = "0";
         } else if (output.textContent !== "Error") {
             output.textContent = output.textContent.substring(
