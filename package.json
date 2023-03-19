@@ -1,0 +1,22 @@
+{
+  "name": "calculator",
+  "version": "1.0.0",
+  "description": "A calculator build using HTML, CSS, and JavaScript with both light and dark modes.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnflanagan827/calculator.git"
+  },
+  "author": "John Flanagan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/johnflanagan827/calculator/issues"
+  },
+  "homepage": "https://github.com/johnflanagan827/calculator#readme",
+  "devDependencies": {
+    "eslint": "^8.36.0"
+  }
+}

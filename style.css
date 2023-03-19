@@ -24,6 +24,9 @@
 .number,
 .operation,
 .operation-other {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: min(5vw, 2rem);
 }
 
