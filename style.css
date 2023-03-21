@@ -43,6 +43,7 @@ button {
   max-height: 4rem;
   border-radius: 100%;
   border: none;
+  outline: none;
 }
 
 #btn-0 {
@@ -58,8 +59,9 @@ button {
 }
 
 #output {
-  font-size: min(8vw, 3rem);
-  margin-right: 0.7rem;
+  font-size: min(7.3vw, 2.9rem);
+  margin-right: 0.6rem;
+  transform-origin: right;
 }
 
 input[type="checkbox"] {

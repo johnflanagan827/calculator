@@ -1,5 +1,6 @@
 // CONSTANTS
 const output = document.getElementById('output');
+const buttons = document.getElementsByTagName('button');
 const numbers = document.querySelectorAll('.number');
 const clear = document.getElementById('clear');
 const divide = document.getElementById('divide');
@@ -37,9 +38,11 @@ function calculate(leftOperand, rightOperand, currOperation) {
   } else if (currOperation === '*') {
     result = leftOperand * rightOperand;
   } else if (currOperation === '-') {
-    result = leftOperand - rightOperand;
+    result = (leftOperand * 1000000000 - rightOperand * 1000000000) / 1000000000;
   } else if (currOperation === '+') {
-    result = leftOperand + rightOperand;
+    result = (leftOperand * 1000000000 + rightOperand * 1000000000) / 1000000000;
+  } else {
+    result = rightOperand;
   }
   return formatResults(result);
 }
@@ -49,17 +52,15 @@ function formatResults(result) {
   if (result === Infinity) {
     result = 'Error';
   }
-  if (result.toString().length > 10) {
+  if (result.toString().length >= 10) {
     if (result.toString().includes('-')) {
       result = result.toPrecision(9);
     } else {
-      result = result.toPrecision(10);
+      result = result.toPrecision(9);
     }
     if (result.includes('e')) {
       let e = result.substring(result.indexOf('e'));
       result = result.substring(0, 10 - e.length) + e;
-    } else {
-      result = result.substring(0, 10);
     }
   }
   return result;
@@ -67,7 +68,7 @@ function formatResults(result) {
 
 // performs operation of specified operator
 function performOperation(operator) {
-  leftOperand = output.textContent;
+  leftOperand = output.textContent.replaceAll(',', '');
   enterStatus = false;
   clearDisplay = true;
   currOperation = operator;
@@ -76,19 +77,19 @@ function performOperation(operator) {
 // performs equal operation
 function performEqual() {
   if (!enterStatus) {
-    rightOperand = output.textContent;
+    rightOperand = output.textContent.replaceAll(',', '');
   }
   output.textContent = calculate(
     parseFloat(leftOperand),
     parseFloat(rightOperand),
     currOperation
   );
-  leftOperand = output.textContent;
+  leftOperand = output.textContent.replaceAll(',', '');
   enterStatus = true;
 }
 
-// changes calculator theme
-function changeTheme(
+// sets calculator theme
+function setTheme(
   htmlBackground,
   calculatorBackground,
   numberBackground,
@@ -97,14 +98,14 @@ function changeTheme(
   dayNightColor
 ) {
   document.getElementsByTagName('html')[0].style.backgroundColor =
-        htmlBackground;
+    htmlBackground;
   document.querySelectorAll('.container')[0].style.backgroundColor =
-        calculatorBackground;
+    calculatorBackground;
   document.querySelectorAll('.btn-row').forEach((e) => {
     e.style.backgroundColor = calculatorBackground;
   });
   document.getElementById('output').style.backgroundColor =
-        calculatorBackground;
+    calculatorBackground;
   document.querySelectorAll('.number').forEach((e) => {
     e.style.backgroundColor = numberBackground;
   });
@@ -119,23 +120,32 @@ function changeTheme(
   });
 }
 
+
+
 // EVENT LISTENERS
 numbers.forEach((e) => {
   e.addEventListener('click', () => {
-    if (enterStatus || output.textContent.length >= 9) {
-      return;
-    } else if (
+    if (
       (output.textContent === '0' ||
-                output.textContent === 'Error' ||
-                clearDisplay) && e.value !== '.'
+        output.textContent === 'Error' ||
+        clearDisplay) && e.value !== '.'
     ) {
       enterStatus = false;
       output.textContent = e.value;
       clearDisplay = false;
-
+    } else if (enterStatus || (output.textContent.length == 10 && output.textContent.includes('.')) || output.textContent.length == 11 || (output.textContent.length == 12 && output.textContent.includes('-'))) {
+      return;
+    } else if (output.textContent === '-0') {
+      enterStatus = false;
+      output.textContent = '-' + e.value;
+      clearDisplay = false;
     } else {
       if (!(e.value === '.' && output.textContent.includes('.'))) {
-        output.textContent = output.textContent + e.value;
+        if (e.value === '.' || output.textContent.includes('.') || output.textContent === '0.') {
+          output.textContent = output.textContent + e.value;
+        } else {
+          output.textContent = parseFloat(output.textContent.replaceAll(',', '') + e.value).toLocaleString('en-us');
+        }
       }
     }
   });
@@ -146,10 +156,20 @@ numbers.forEach((e) => {
   });
 });
 
+for (let i = 0; i < buttons.length; i++) {
+  buttons[i].addEventListener('mousedown', () => {
+    buttons[i].style.transform = 'translateY(0.25rem)';
+    document.addEventListener('mouseup', () => {
+      buttons[i].style.transform = '';
+    });
+  });
+}
+
 clear.addEventListener('click', () => {
   enterStatus = false;
   output.textContent = '0';
   leftOperand = 0;
+  currOperation = '';
 });
 
 divide.addEventListener('click', () => {
@@ -174,12 +194,21 @@ equals.addEventListener('click', () => {
 
 percent.addEventListener('click', () => {
   if (output.textContent !== '0') {
-    output.textContent = calculate(parseFloat(output.textContent), 100, '/');
+    output.textContent = calculate(parseFloat(output.textContent.replaceAll(',', '')), 100, '/');
   }
 });
 
 plusMinus.addEventListener('click', () => {
-  output.textContent = calculate(parseFloat(output.textContent), -1, '*');
+  if (enterStatus) {
+    return;
+  } else if (clearDisplay) {
+    output.textContent = '-0';
+    clearDisplay = false;
+  } else if (output.textContent.includes('-')) {
+    output.textContent = output.textContent.substring(1, output.textContent.length);
+  } else {
+    output.textContent = '-' + output.textContent;
+  }
 });
 
 window.addEventListener('keydown', (e) => {
@@ -195,7 +224,7 @@ window.addEventListener('keydown', (e) => {
     performEqual();
   } else if (e.key === '%') {
     if (output.textContent !== '0') {
-      output.textContent = calculate(parseFloat(output.textContent), 100, '/');
+      output.textContent = calculate(parseFloat(output.textContent.replaceAll(',', '')), 100, '/');
     }
   } else if (e.key === 'Backspace') {
     if (enterStatus) {
@@ -213,12 +242,12 @@ window.addEventListener('keydown', (e) => {
 
 slider.addEventListener('click', () => {
   if (darkMode) {
-    changeTheme('#f5dfbb', '#0077b6', '#00b4d8', '#02c39a', '#caf0f8', 'black');
+    setTheme('#f5dfbb', '#0077b6', '#00b4d8', '#02c39a', '#caf0f8', 'black');
     darkMode = false;
   } else {
-    changeTheme('#222222', 'black', '#505050', '#ff9500', '#d4d4d2', 'white');
+    setTheme('#222222', 'black', '#505050', '#ff9500', '#d4d4d2', 'white');
     darkMode = true;
   }
 });
 
-changeTheme('#f5dfbb', '#0077b6', '#00b4d8', '#02c39a', '#caf0f8', 'black');
+setTheme('#f5dfbb', '#0077b6', '#00b4d8', '#02c39a', '#caf0f8', 'black');
