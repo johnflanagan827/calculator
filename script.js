@@ -79,11 +79,12 @@ function performEqual() {
   if (!enterStatus) {
     rightOperand = output.textContent.replaceAll(',', '');
   }
-  output.textContent = calculate(
+
+  output.textContent = parseFloat(calculate(
     parseFloat(leftOperand),
     parseFloat(rightOperand),
     currOperation
-  );
+  )).toLocaleString('en-us');
   leftOperand = output.textContent.replaceAll(',', '');
   enterStatus = true;
 }
@@ -119,8 +120,6 @@ function setTheme(
     e.style.color = dayNightColor;
   });
 }
-
-
 
 // EVENT LISTENERS
 numbers.forEach((e) => {
@@ -238,6 +237,10 @@ window.addEventListener('keydown', (e) => {
       );
     }
   }
+});
+
+document.addEventListener('mousedown', (e) => {
+  e.preventDefault();
 });
 
 slider.addEventListener('click', () => {
