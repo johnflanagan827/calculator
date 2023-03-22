@@ -24,17 +24,9 @@ let darkMode = false;
 
 // performs calculator operation
 function calculate(leftOperand, rightOperand, currOperation) {
-  if (isNaN(leftOperand)) {
-    return 'Error';
-  }
-
   let result;
   if (currOperation === '/') {
-    if (output.textContent === '0') {
-      result = 'Error';
-    } else {
-      result = leftOperand / rightOperand;
-    }
+    result = leftOperand / rightOperand;
   } else if (currOperation === '*') {
     result = leftOperand * rightOperand;
   } else if (currOperation === '-') {
@@ -44,6 +36,9 @@ function calculate(leftOperand, rightOperand, currOperation) {
   } else {
     result = rightOperand;
   }
+  if (isNaN(result) || result == 'Infinity') {
+    return 'Error';
+  }
   return formatResults(result);
 }
 
@@ -52,13 +47,24 @@ function formatResults(result) {
   if (result === Infinity) {
     result = 'Error';
   }
-  result = result.toPrecision(9);
-  if (result.includes('e')) {
-    let e = result.substring(result.indexOf('e'));
-    return result.substring(0, 11 - e.length) + e;
+  if (result.toString().length >= 10) {
+    result = result.toPrecision(9);
   } else {
-    console.log(parseFloat(result).toLocaleString('en-us'));
-    return parseFloat(result).toLocaleString('en-us');
+    result = result.toString();
+  }
+  if (result.includes('e')) {
+    if (result.length <= 11) {
+      return result;
+    } else {
+      let e = result.substring(result.indexOf('e'));
+      return result.substring(0, 11 - e.length) + e;
+    }
+  } else {
+    if (result.includes('.')) {
+      return result.substring(0, 11);
+    } else {
+      return parseFloat(result).toLocaleString('en-us');
+    }
   }
 }
 
@@ -128,7 +134,7 @@ numbers.forEach((e) => {
       enterStatus = false;
       output.textContent = e.value;
       clearDisplay = false;
-    } else if (enterStatus || (output.textContent.length == 10 && output.textContent.includes('.')) || output.textContent.length == 11 || (output.textContent.length == 12 && output.textContent.includes('-'))) {
+    } else if (enterStatus || (output.textContent.length == 11 && !output.textContent.includes('-')) || (output.textContent.length == 12)) {
       return;
     } else if (output.textContent === '-0') {
 
@@ -139,14 +145,15 @@ numbers.forEach((e) => {
         output.textContent = '-' + e.value;
       }
       clearDisplay = false;
-    } else {
-      if (!(e.value === '.' && output.textContent.includes('.'))) {
-        if (e.value === '.' || output.textContent.includes('.') || output.textContent === '0.') {
-          output.textContent = output.textContent + e.value;
-        } else {
-          output.textContent = parseFloat(output.textContent.replaceAll(',', '') + e.value).toLocaleString('en-us');
-        }
+    } else if (!(e.value === '.' && output.textContent.includes('.'))) {
+      if (e.value === '.' || output.textContent.includes('.') || output.textContent === '0.') {
+        output.textContent = output.textContent + e.value;
+      } else {
+        output.textContent = parseFloat(output.textContent.replaceAll(',', '') + e.value).toLocaleString('en-us');
       }
+    } else if (e.value === '.' && clearDisplay) {
+      clearDisplay = false;
+      output.textContent = '0.';
     }
   });
   window.addEventListener('keypress', (event) => {
@@ -193,9 +200,7 @@ equals.addEventListener('click', () => {
 });
 
 percent.addEventListener('click', () => {
-  if (output.textContent !== '0') {
-    output.textContent = calculate(parseFloat(output.textContent.replaceAll(',', '')), 100, '/');
-  }
+  output.textContent = calculate(parseFloat(output.textContent.replaceAll(',', '')), 100, '/');
 });
 
 plusMinus.addEventListener('click', () => {
