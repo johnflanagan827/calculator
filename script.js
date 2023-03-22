@@ -52,18 +52,14 @@ function formatResults(result) {
   if (result === Infinity) {
     result = 'Error';
   }
-  if (result.toString().length >= 10) {
-    if (result.toString().includes('-')) {
-      result = result.toPrecision(9);
-    } else {
-      result = result.toPrecision(9);
-    }
-    if (result.includes('e')) {
-      let e = result.substring(result.indexOf('e'));
-      result = result.substring(0, 10 - e.length) + e;
-    }
+  result = result.toPrecision(9);
+  if (result.includes('e')) {
+    let e = result.substring(result.indexOf('e'));
+    return result.substring(0, 11 - e.length) + e;
+  } else {
+    console.log(parseFloat(result).toLocaleString('en-us'));
+    return parseFloat(result).toLocaleString('en-us');
   }
-  return result;
 }
 
 // performs operation of specified operator
@@ -80,11 +76,11 @@ function performEqual() {
     rightOperand = output.textContent.replaceAll(',', '');
   }
 
-  output.textContent = parseFloat(calculate(
+  output.textContent = calculate(
     parseFloat(leftOperand),
     parseFloat(rightOperand),
     currOperation
-  )).toLocaleString('en-us');
+  );
   leftOperand = output.textContent.replaceAll(',', '');
   enterStatus = true;
 }
@@ -135,8 +131,13 @@ numbers.forEach((e) => {
     } else if (enterStatus || (output.textContent.length == 10 && output.textContent.includes('.')) || output.textContent.length == 11 || (output.textContent.length == 12 && output.textContent.includes('-'))) {
       return;
     } else if (output.textContent === '-0') {
+
       enterStatus = false;
-      output.textContent = '-' + e.value;
+      if (e.value === '.') {
+        output.textContent = '-0.';
+      } else {
+        output.textContent = '-' + e.value;
+      }
       clearDisplay = false;
     } else {
       if (!(e.value === '.' && output.textContent.includes('.'))) {
